@@ -156,10 +156,8 @@ def download_once(opener, url, timeout, max_bytes, max_seconds,
         # read1() отдаёт то, что уже пришло, а не ждёт набора полного куска:
         # иначе на медленной отдаче проверки лимитов ниже не выполняются,
         # пока сервер не дошлёт весь CHUNK_SIZE.
-        read = getattr(response, "read1", None) or response.read
-
         while True:
-            chunk = read(CHUNK_SIZE)
+            chunk = response.read1(CHUNK_SIZE)
             if not chunk:
                 break
             downloaded += len(chunk)
@@ -250,11 +248,10 @@ def build_parser():
 
 def main(argv=None):
     # stdout при перенаправлении в файл буферизуется блоками, а stderr — нет,
-    # из-за чего строки об ошибках уезжали вперёд успешных.
-    try:
+    # из-за чего строки об ошибках уезжали вперёд успешных. Метода может не быть,
+    # если stdout подменён не на текстовый поток.
+    if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(line_buffering=True)
-    except (AttributeError, OSError):
-        pass
 
     parser = build_parser()
     args = parser.parse_args(argv)

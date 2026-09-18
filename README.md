@@ -9,7 +9,7 @@ GET-запросов к указанному адресу (например, к 
 ## Установка
 
 ```bash
-git clone https://github.com/<USER>/internet-speed-test.git
+git clone https://github.com/imbim2004/internet-speed-test.git
 cd internet-speed-test
 chmod +x speedtest.py
 ```

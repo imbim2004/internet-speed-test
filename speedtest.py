@@ -17,6 +17,8 @@ import urllib.request
 from urllib.parse import quote, urlencode, urlsplit, urlunsplit
 
 CHUNK_SIZE = 64 * 1024
+# картинка ~9.7 МБ: чтобы скрипт можно было запустить вообще без аргументов
+DEFAULT_URL = "https://upload.wikimedia.org/wikipedia/commons/f/ff/Pizigani_1367_Chart_10MB.jpg"
 DEFAULT_MAX_BYTES = 512 * 1024 * 1024   # предохранитель от бесконечных потоков
 DEFAULT_MAX_SECONDS = 300.0             # предохранитель от очень медленной отдачи
 
@@ -211,7 +213,11 @@ def build_parser():
     parser = argparse.ArgumentParser(
         description="Замер скорости скачивания: N последовательных запросов к URL.",
     )
-    parser.add_argument("url", help="адрес, куда стучаться (например, тяжёлая картинка)")
+    parser.add_argument(
+        "url", nargs="?", default=DEFAULT_URL,
+        help="адрес, куда стучаться (например, тяжёлая картинка); "
+             "если не указан, берётся картинка ~9.7 МБ с Wikimedia",
+    )
     parser.add_argument(
         "-n", "--requests", type=int, default=10,
         help="количество последовательных запросов (по умолчанию 10)",
@@ -270,7 +276,8 @@ def main(argv=None):
     limits = dict(timeout=args.timeout, max_bytes=args.max_bytes, max_seconds=args.max_seconds,
                   no_cache_buster=args.no_cache_buster)
 
-    print(f"URL:      {display_url(url)}")
+    print(f"URL:      {display_url(url)}"
+          + ("   (адрес по умолчанию)" if args.url == DEFAULT_URL else ""))
     print(f"Запросов: {args.requests}\n")
 
     if args.warmup:
